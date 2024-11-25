@@ -41,26 +41,37 @@ static EFI_STATUS load_string_table(struct elf *elf_info)
   return EFI_SUCCESS;
 }
 
+// Search section and return index
+static INTN search_section(struct elf *elf_info, char *name)
+{
+  INTN i;
+  for(i = 0; i < elf_info->elf_header.e_shnum; i++)
+  {
+    struct elf_64_section_header section_header = elf_info->section_header[i];
+    char *section_name = elf_info->string_table + section_header.sh_name;
+    if(!memcmp(name, section_name, 4))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
 // Clear bss section with zeros.
 static VOID clear_bss(struct elf *elf_info)
 {
   UINTN i, j;
   char *bss_name = ".bss";
-  for(i = 0; i < elf_info->elf_header.e_shnum; i++)
-  {
-    struct elf_64_section_header section_header = elf_info->section_header[i];
-    char *section_name = elf_info->string_table + section_header.sh_name;
-    for(j = 0; section_name[j] && bss_name[j] && section_name[j] == bss_name[j]; j++);
+  INTN section_index = search_section(elf_info, bss_name);
 
-    if(!(section_name[j] - bss_name[j]))
-    {
-      UINT64 paddr = section_header.sh_addr - elf_info->program_header[0].p_vaddr +
-                     elf_info->program_header[0].p_paddr;
-      memset((VOID *) paddr, 0, section_header.sh_size);
-      break;
-    }
-  }
+  if(section_index < 0)
+    return;
 
+  struct elf_64_section_header section_header = elf_info->section_header[section_index];
+  UINT64 paddr = section_header.sh_addr - elf_info->program_header[0].p_vaddr +
+                 elf_info->program_header[0].p_paddr;
+  memset((VOID *) paddr, 0, section_header.sh_size);
 }
 
 // Alloc and load section header of elf.
