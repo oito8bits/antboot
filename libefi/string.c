@@ -1,5 +1,19 @@
 #include <libefi.h>
 
+INTN memcmp(const VOID *buf1, const VOID *buf2, INTN count)
+{
+  const UINT8 *p = buf1;
+  const UINT8 *q = buf2;
+
+  while(count--)
+  { 
+    if(*p++ != *q++)
+      return p[-1] < q[-1] ? -1 : 1;  
+  } 
+    
+  return 0;
+}
+
 VOID *memcpy(VOID *dest, const VOID *src, UINT64 n)
 {
   UINT8 *p = dest;
