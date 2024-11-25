@@ -17,6 +17,7 @@ VOID putchar(CHAR16);
 INTN printf(const CHAR16 *, ...);
 
 // String functions.
+INTN memcmp(const VOID *, const VOID *, INTN);
 UINTN strlen(const CHAR16 *);
 VOID *memset(VOID *, UINTN, UINTN);
 
