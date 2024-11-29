@@ -42,7 +42,7 @@ static EFI_STATUS load_string_table(struct elf *elf_info)
 }
 
 // Search section and return index
-static INTN search_section(struct elf *elf_info, char *name)
+static INTN search_section_index(struct elf *elf_info, char *name)
 {
   INTN i;
   for(i = 0; i < elf_info->elf_header.e_shnum; i++)
@@ -50,9 +50,7 @@ static INTN search_section(struct elf *elf_info, char *name)
     struct elf_64_section_header section_header = elf_info->section_header[i];
     char *section_name = elf_info->string_table + section_header.sh_name;
     if(!memcmp(name, section_name, 4))
-    {
       return i;
-    }
   }
 
   return -1;
@@ -63,7 +61,7 @@ static VOID clear_bss(struct elf *elf_info)
 {
   UINTN i, j;
   char *bss_name = ".bss";
-  INTN section_index = search_section(elf_info, bss_name);
+  INTN section_index = search_section_index(elf_info, bss_name);
 
   if(section_index < 0)
     return;
@@ -184,5 +182,9 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
 
   clear_bss(elf_info);
 
+  struct elf_64_section_header boot_info_section = elf_info->section_header[search_section_index(elf_info, ".boot_info")];
+  elf_info->boot_info_addr = (VOID *) boot_info_section.sh_addr - 
+                             elf_info->program_header[0].p_vaddr + 
+                             elf_info->program_header[0].p_paddr;
   return EFI_SUCCESS;
 }

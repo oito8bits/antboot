@@ -47,7 +47,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
 
   elf_clear_all(&kernel_info);    
 
-  struct boot_info *boot_info = allocate_runtime_pool(sizeof *boot_info);
+  struct boot_info *boot_info = kernel_info.boot_info_addr;
 
   status = gop_init(&boot_info->mode);
   if(EFI_ERROR(status))
