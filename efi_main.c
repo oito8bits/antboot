@@ -54,7 +54,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
     fatal_error(L"gop_init: Failed to init gop mode.");
 
   struct memory_map *map;
-  map = allocate_runtime_pool(sizeof *map);
+  map = bmalloc(sizeof *map, EfiRuntimeServicesData);
   UINTN map_key;
   status = memory_get_map(&boot_info->map, &map_key);
   if(EFI_ERROR(status))

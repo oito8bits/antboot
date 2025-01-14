@@ -9,7 +9,7 @@ static EFI_STATUS load_program_header(struct elf *elf_info)
   EFI_STATUS status;
 
   UINTN size = elf_info->elf_header.e_phentsize * elf_info->elf_header.e_phnum;
-  elf_info->program_header = allocate_boot_pool(size);
+  elf_info->program_header = bmalloc(size, EfiRuntimeServicesData);
   if(elf_info->program_header == NULL)
     return EFI_UNSUPPORTED;
 
@@ -30,7 +30,7 @@ static EFI_STATUS load_string_table(struct elf *elf_info)
   struct elf_64_section_header str_section = elf_info->section_header[elf_info->elf_header.e_shstrndx];
 
   UINTN size = str_section.sh_size;
-  elf_info->string_table = allocate_boot_pool(size);
+  elf_info->string_table = bmalloc(size, EfiRuntimeServicesData);
   
   EFI_FILE_PROTOCOL *file_interface = elf_info->file_interface;
   file_set_position(file_interface, str_section.sh_offset);
@@ -78,7 +78,7 @@ static EFI_STATUS load_section_header(struct elf *elf_info)
   EFI_STATUS status;
 
   UINTN size = elf_info->elf_header.e_shentsize * elf_info->elf_header.e_shnum;  
-  elf_info->section_header = allocate_boot_pool(size);
+  elf_info->section_header = bmalloc(size, EfiRuntimeServicesData);
   if(elf_info->section_header == NULL)
     return EFI_UNSUPPORTED;
 
@@ -128,9 +128,9 @@ EFI_STATUS elf_parse(struct elf *elf_info)
 VOID elf_clear_all(struct elf *elf_info)
 {
   elf_info->file_interface->Close(elf_info->file_interface);
-  free_pool(elf_info->program_header);
-  free_pool(elf_info->section_header);
-  free_pool(elf_info->string_table);
+  bfree(elf_info->program_header);
+  bfree(elf_info->section_header);
+  bfree(elf_info->string_table);
 }
 
 EFI_STATUS elf_load_kernel(struct elf *elf_info)
@@ -159,9 +159,9 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
 
     address = elf_info->program_header[i].p_paddr;
     if(elf_info->program_header[i].p_flags & 0x1)
-      memory_type = EfiRuntimeServicesCode;
+      memory_type = EfiLoaderCode;
     else
-      memory_type = EfiRuntimeServicesData;
+      memory_type = EfiLoaderData;
 
     status = BS->AllocatePages(AllocateAddress,
                                memory_type,
