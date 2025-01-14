@@ -1,0 +1,3 @@
+[submodule "libefi"]
+	path = libefi
+	url = git@github.com:oito8bits/libefi.git
