@@ -5,6 +5,7 @@
 #include <memory.h>
 #include <info.h>
 #include <errors.h>
+#include <page.h>
 
 __attribute__((sysv_abi))
 void (*_start_ant)(struct boot_info *);
@@ -41,11 +42,12 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   if(EFI_ERROR(status))
     fatal_error(L"load_kernel: Failed to parse kernel.");
 
+  page_init();
   status = elf_load_kernel(&kernel_info);
   if(EFI_ERROR(status))
     fatal_error(L"elf_load_kernel: Failed to load kernel.");
 
-  elf_clear_all(&kernel_info);    
+  elf_clear_all(&kernel_info);
 
   struct boot_info *boot_info = kernel_info.boot_info_addr;
 
@@ -59,11 +61,11 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   status = memory_get_map(&boot_info->map, &map_key);
   if(EFI_ERROR(status))
     fatal_error(L"memory_get_map: Failed to get memory map.");
-
+  
   status = BS->ExitBootServices(IH, map_key);
   if(EFI_ERROR(status))
     fatal_error(L"ExitBootServices: Failed to exit boot services.");
-
+  
   _start_ant = (__attribute__((sysv_abi)) void (*)(struct boot_info *)) 
                kernel_info.elf_header.e_entry;
   _start_ant(boot_info);

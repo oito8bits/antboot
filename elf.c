@@ -2,6 +2,31 @@
 #include <file.h>
 #include <align.h>
 #include <errors.h>
+#include <page.h>
+#include <cr.h>
+
+// Used to store the elf before placing it at the elf entry point
+#define DATA_AREA 0x100000
+
+// Calculate size of elf in memory
+static void calculate_mem_size(struct elf *elf_info)
+{
+  UINTN i;
+  UINTN idx;
+  for(i = 0; i < elf_info->elf_header.e_phnum; i++)
+  {
+    if(elf_info->program_header[i].p_type == PT_LOAD)
+      idx = i;
+  }
+
+  UINTN size = elf_info->program_header[idx].p_paddr +
+               elf_info->program_header[idx].p_memsz - elf_info->program_header[0].p_paddr;
+
+  if(IS_ALIGN(size, PAGE_SIZE))
+    size = ALIGNUP(size, PAGE_SIZE);
+
+  elf_info->mem_size = size / PAGE_SIZE;
+}
 
 // Alloc and load program header of elf.
 static EFI_STATUS load_program_header(struct elf *elf_info)
@@ -101,6 +126,13 @@ static INTN is_elf(struct elf *elf_info)
   return *((UINT32 *) &elf_info->elf_header.e_ident) == 0x464c457f;
 }
 
+// Map elf sections
+static VOID map_elf(struct elf *elf_info)
+{
+  cr_disable_wp_bit();
+  page_map_pages(elf_info->program_header[0].p_paddr, 1);
+  memcpy((VOID *) elf_info->program_header[0].p_paddr, (VOID *) DATA_AREA, elf_info->mem_size * PAGE_SIZE);
+}
 EFI_STATUS elf_parse(struct elf *elf_info)
 {
   EFI_STATUS status;
@@ -118,6 +150,8 @@ EFI_STATUS elf_parse(struct elf *elf_info)
   if(EFI_ERROR(status))
     return status;
 
+  calculate_mem_size(elf_info);
+
   status = load_section_header(elf_info);
   if(EFI_ERROR(status))
     return status;
@@ -128,9 +162,6 @@ EFI_STATUS elf_parse(struct elf *elf_info)
 VOID elf_clear_all(struct elf *elf_info)
 {
   elf_info->file_interface->Close(elf_info->file_interface);
-  bfree(elf_info->program_header);
-  bfree(elf_info->section_header);
-  bfree(elf_info->string_table);
 }
 
 EFI_STATUS elf_load_kernel(struct elf *elf_info)
@@ -138,12 +169,24 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   EFI_STATUS status;
 
   UINTN i;
-  UINTN size;
   UINTN position;
   EFI_FILE_PROTOCOL *file_interface = elf_info->file_interface;
-  EFI_PHYSICAL_ADDRESS address;
+  EFI_PHYSICAL_ADDRESS address = DATA_AREA;
   UINT64 p_memsz, p_align;
-  EFI_MEMORY_TYPE memory_type;
+  UINTN size;
+
+  printf(L"elf_mem_size: %x\n", elf_info->mem_size);
+  EFI_MEMORY_TYPE memory_type = EfiLoaderData;
+  status = BS->AllocatePages(AllocateAddress,
+                             memory_type,                    
+                             elf_info->mem_size,               
+                             &address);
+  if(EFI_ERROR(status))      
+  {
+    error(L"Failed to alloc page to kernel.");
+    return status;           
+  }
+
   for(i = 0; i < elf_info->elf_header.e_phnum; i++)
   {
     if(elf_info->program_header[i].p_type != PT_LOAD)
@@ -152,27 +195,13 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
     p_memsz = elf_info->program_header[i].p_memsz;
     p_align = elf_info->program_header[i].p_align;
 
-    if(p_memsz & p_align - 1)
+    if(IS_ALIGN(p_memsz, p_align))
       size = ALIGNUP(p_memsz, p_align);
     else
       size = p_memsz;
 
-    address = elf_info->program_header[i].p_paddr;
-    if(elf_info->program_header[i].p_flags & 0x1)
-      memory_type = EfiLoaderCode;
-    else
-      memory_type = EfiLoaderData;
-
-    status = BS->AllocatePages(AllocateAddress,
-                               memory_type,
-                               size / PAGE_SIZE,
-                               &address);
-
-    if(EFI_ERROR(status))
-    {
-      error(L"Failed to alloc page to kernel.");
-      return status;
-    }
+    address = DATA_AREA + (elf_info->program_header[i].p_paddr - 
+                          elf_info->program_header[0].p_paddr);
 
     position = elf_info->program_header[i].p_offset;
     file_set_position(file_interface, position);
@@ -181,10 +210,12 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   }
 
   clear_bss(elf_info);
-
+  map_elf(elf_info);
+  
   struct elf_64_section_header boot_info_section = elf_info->section_header[search_section_index(elf_info, ".boot_info")];
-  elf_info->boot_info_addr = (VOID *) boot_info_section.sh_addr - 
+  // TODO: Implement an area to put boot info.
+  elf_info->boot_info_addr = (void *) DATA_AREA/*(VOID *) boot_info_section.sh_addr - 
                              elf_info->program_header[0].p_vaddr + 
-                             elf_info->program_header[0].p_paddr;
+                             elf_info->program_header[0].p_paddr*/;
   return EFI_SUCCESS;
 }

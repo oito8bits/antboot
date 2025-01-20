@@ -3,12 +3,10 @@
 
 #include <libefi.h>
 
-#define PAGE_SIZE 4096
 
 // Used by e_type.
 #define PT_NULL   0   // Program header table entry unused
 #define PT_LOAD   1   // Loadable program segment
-
 
 #define EI_NIDENT 16
 
@@ -68,6 +66,7 @@ struct elf
   struct elf_64_section_header  *section_header;
   char                          *string_table;
   VOID                          *boot_info_addr;
+  UINTN                         mem_size;
 };
 
 EFI_STATUS elf_parse(struct elf *);
