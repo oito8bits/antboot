@@ -132,6 +132,7 @@ static VOID map_elf(struct elf *elf_info)
   cr_disable_wp_bit();
   page_map_pages(elf_info->program_header[0].p_paddr, 1);
   memcpy((VOID *) elf_info->program_header[0].p_paddr, (VOID *) DATA_AREA, elf_info->mem_size * PAGE_SIZE);
+  cr_enable_wp_bit();
 }
 EFI_STATUS elf_parse(struct elf *elf_info)
 {
