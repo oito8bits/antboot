@@ -10,7 +10,7 @@ UINT64 page_get_p4d_idx(EFI_VIRTUAL_ADDRESS address)
 
 UINT64 page_get_pud_idx(EFI_VIRTUAL_ADDRESS address)
 { 
-  return address >> 30 & 0xffUL;
+  return address >> 30 & 0x1ffUL;
 }
 
 UINT64 page_get_pmd_idx(EFI_VIRTUAL_ADDRESS address)
