@@ -36,7 +36,4 @@ VOID page_init(VOID)
   UINT64 *pud = (UINT64 *) (p4d[0] & ~0xfffUL);
   
   pmd = (UINT64 *) (pud[0] & ~0xfffUL);
-  UINTN i;
-  //for(i = 0; i < 15; i++)
-  //  printf(L"page_address: %x, index: %i\r\n", pmd[i], i);
 }
