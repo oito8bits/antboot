@@ -1,4 +1,5 @@
 #include <page.h>
+#include <align.h>
 #include <cr.h>
 
 UINT64 *pmd = 0;
@@ -23,11 +24,16 @@ UINT64 page_get_l1_idx(EFI_VIRTUAL_ADDRESS address)
   return address >> 12 & 0x1ffUL;
 }
 
-VOID page_map_pages(EFI_PHYSICAL_ADDRESS address_base, UINTN npages)
+EFI_STATUS page_map_pages(EFI_PHYSICAL_ADDRESS address_base, UINTN npages)
 {
+  if(IS_ALIGN(address_base, PAGE_2MIB))
+    return EFI_INVALID_PARAMETER;
+
   UINTN i;
   for(i = 0; i < npages * PAGE_2MIB; i += PAGE_2MIB);
     pmd[page_get_l2_idx(address_base + i)] = address_base + i + 0x83;
+
+  return EFI_SUCCESS;
 }
 
 VOID page_init(VOID)

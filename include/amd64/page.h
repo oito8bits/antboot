@@ -11,7 +11,7 @@ UINT64 page_get_l3_idx(EFI_VIRTUAL_ADDRESS address);
 UINT64 page_get_l2_idx(EFI_VIRTUAL_ADDRESS address);
 UINT64 page_get_l1_idx(EFI_VIRTUAL_ADDRESS address);
 
-VOID page_map_pages(EFI_PHYSICAL_ADDRESS, UINTN);
+EFI_STATUS page_map_pages(EFI_PHYSICAL_ADDRESS, UINTN);
 VOID page_init(VOID);
 
 #endif

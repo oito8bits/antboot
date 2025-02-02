@@ -36,7 +36,7 @@ static EFI_STATUS load_program_header(struct elf *elf_info)
   UINTN size = elf_info->elf_header.e_phentsize * elf_info->elf_header.e_phnum;
   elf_info->program_header = bmalloc(size, EfiRuntimeServicesData);
   if(elf_info->program_header == NULL)
-    return EFI_UNSUPPORTED;
+    return EFI_INVALID_PARAMETER;
 
   EFI_FILE_PROTOCOL *file_interface = elf_info->file_interface;
   file_set_position(file_interface, elf_info->elf_header.e_phoff);
@@ -127,12 +127,16 @@ static INTN is_elf(struct elf *elf_info)
 }
 
 // Map elf sections
-static VOID map_elf(struct elf *elf_info)
+static EFI_STATUS map_elf(struct elf *elf_info)
 {
   cr_disable_wp_bit();
-  page_map_pages(elf_info->program_header[0].p_paddr, 1);
+  if(EFI_ERROR(page_map_pages(elf_info->program_header[0].p_paddr, 1)))
+    return EFI_INVALID_PARAMETER;
+  
   memcpy((VOID *) elf_info->program_header[0].p_paddr, (VOID *) DATA_AREA, elf_info->mem_size * PAGE_SIZE);
   cr_enable_wp_bit();
+
+  return EFI_SUCCESS;
 }
 EFI_STATUS elf_parse(struct elf *elf_info)
 {
@@ -211,7 +215,8 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   }
 
   clear_bss(elf_info);
-  map_elf(elf_info);
+  if(EFI_ERROR(map_elf(elf_info)))
+    return EFI_INVALID_PARAMETER;
   
   struct elf_64_section_header boot_info_section = elf_info->section_header[search_section_index(elf_info, ".boot_info")];
   // TODO: Implement an area to put boot info.
