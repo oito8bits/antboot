@@ -6,10 +6,10 @@
 #define PAGE_2MIB (2 << 20)
 #define PAGE_SIZE PAGE_2MIB
 
-UINT64 page_get_p4d_idx(EFI_VIRTUAL_ADDRESS address);
-UINT64 page_get_pud_idx(EFI_VIRTUAL_ADDRESS address);
-UINT64 page_get_pmd_idx(EFI_VIRTUAL_ADDRESS address);
-UINT64 page_get_pte_idx(EFI_VIRTUAL_ADDRESS address);
+UINT64 page_get_l4_idx(EFI_VIRTUAL_ADDRESS address);
+UINT64 page_get_l3_idx(EFI_VIRTUAL_ADDRESS address);
+UINT64 page_get_l2_idx(EFI_VIRTUAL_ADDRESS address);
+UINT64 page_get_l1_idx(EFI_VIRTUAL_ADDRESS address);
 
 VOID page_map_pages(EFI_PHYSICAL_ADDRESS, UINTN);
 VOID page_init(VOID);
