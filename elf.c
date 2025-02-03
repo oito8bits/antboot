@@ -218,10 +218,6 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   if(EFI_ERROR(map_elf(elf_info)))
     return EFI_INVALID_PARAMETER;
   
-  struct elf_64_section_header boot_info_section = elf_info->section_header[search_section_index(elf_info, ".boot_info")];
-  // TODO: Implement an area to put boot info.
-  elf_info->boot_info_addr = (void *) DATA_AREA/*(VOID *) boot_info_section.sh_addr - 
-                             elf_info->program_header[0].p_vaddr + 
-                             elf_info->program_header[0].p_paddr*/;
+  elf_info->boot_info_addr = bmalloc(size, EfiRuntimeServicesData);
   return EFI_SUCCESS;
 }
