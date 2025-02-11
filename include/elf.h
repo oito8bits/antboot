@@ -65,7 +65,6 @@ struct elf
   struct elf_64_program_header  *program_header;
   struct elf_64_section_header  *section_header;
   char                          *string_table;
-  VOID                          *boot_info_addr;
   UINTN                         mem_size;
 };
 

@@ -218,6 +218,5 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   if(EFI_ERROR(map_elf(elf_info)))
     return EFI_INVALID_PARAMETER;
   
-  elf_info->boot_info_addr = bmalloc(size, EfiRuntimeServicesData);
   return EFI_SUCCESS;
 }
