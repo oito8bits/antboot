@@ -34,7 +34,7 @@ static EFI_STATUS load_program_header(struct elf *elf_info)
   EFI_STATUS status;
 
   UINTN size = elf_info->elf_header.e_phentsize * elf_info->elf_header.e_phnum;
-  elf_info->program_header = bmalloc(size, EfiRuntimeServicesData);
+  elf_info->program_header = malloc(size);
   if(elf_info->program_header == NULL)
     return EFI_INVALID_PARAMETER;
 
@@ -55,7 +55,7 @@ static EFI_STATUS load_string_table(struct elf *elf_info)
   struct elf_64_section_header str_section = elf_info->section_header[elf_info->elf_header.e_shstrndx];
 
   UINTN size = str_section.sh_size;
-  elf_info->string_table = bmalloc(size, EfiRuntimeServicesData);
+  elf_info->string_table = malloc(size);
   
   EFI_FILE_PROTOCOL *file_interface = elf_info->file_interface;
   file_set_position(file_interface, str_section.sh_offset);
@@ -103,7 +103,7 @@ static EFI_STATUS load_section_header(struct elf *elf_info)
   EFI_STATUS status;
 
   UINTN size = elf_info->elf_header.e_shentsize * elf_info->elf_header.e_shnum;  
-  elf_info->section_header = bmalloc(size, EfiRuntimeServicesData);
+  elf_info->section_header = malloc(size);
   if(elf_info->section_header == NULL)
     return EFI_UNSUPPORTED;
 

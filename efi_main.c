@@ -50,7 +50,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   elf_clear_all(&kernel_info);
 
   struct boot_info *boot_info;
-  boot_info = bmalloc(sizeof *boot_info, EfiRuntimeServicesData);
+  boot_info = malloc(sizeof *boot_info);
 
   status = gop_init(&boot_info->mode);
   if(EFI_ERROR(status))

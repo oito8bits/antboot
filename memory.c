@@ -11,7 +11,7 @@ EFI_STATUS memory_get_map(struct memory_map *map, UINTN *map_key)
   UINT32 descriptor_version;
   BS->GetMemoryMap(&memory_map_size, memory_descriptor, map_key, &descriptor_size, &descriptor_version);
 
-  memory_descriptor = bmalloc(memory_map_size, EfiRuntimeServicesData);
+  memory_descriptor = malloc(memory_map_size);
   
   status = BS->GetMemoryMap(&memory_map_size, memory_descriptor, map_key, &descriptor_size, &descriptor_version);
 
