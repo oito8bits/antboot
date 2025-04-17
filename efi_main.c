@@ -47,11 +47,13 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   if(EFI_ERROR(status))
     fatal_error(L"elf_load_kernel: Failed to load kernel.");
 
-  elf_clear_all(&kernel_info);
-
   struct boot_info *boot_info;
   boot_info = malloc(sizeof *boot_info);
+  boot_info->kernel_entry = kernel_info.elf_header.e_entry;
+  boot_info->kernel_size = kernel_info.mem_size * PAGE_SIZE;
 
+  elf_clear_all(&kernel_info);
+  
   status = gop_init(&boot_info->mode);
   if(EFI_ERROR(status))
     fatal_error(L"gop_init: Failed to init gop mode.");

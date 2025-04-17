@@ -9,6 +9,8 @@ struct boot_info
 {
   struct memory_map map;    
   struct gop_video_mode mode;
+  UINT64 kernel_entry;
+  UINT64 kernel_size;
 };
 
 #endif
