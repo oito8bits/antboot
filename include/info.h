@@ -11,6 +11,7 @@ struct boot_info
   struct gop_video_mode mode;
   UINT64 kernel_entry;
   UINT64 kernel_size;
+  VOID *smbios;
 };
 
 #endif

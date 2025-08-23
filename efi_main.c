@@ -51,6 +51,8 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   boot_info = malloc(sizeof *boot_info);
   boot_info->kernel_entry = kernel_info.elf_header.e_entry;
   boot_info->kernel_size = kernel_info.mem_size * PAGE_SIZE;
+  if((boot_info->smbios = getsmbios()) == NULL)
+    error(L"getsmbios: Failed to find smbios.");
 
   elf_clear_all(&kernel_info);
   
