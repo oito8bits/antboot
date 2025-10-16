@@ -8,7 +8,9 @@ UEFI Bootloader for x86-64 architecture. This is submodule of [Ant](https://gith
 
 You will need:
 `x86_64-w64-mingw32-gcc` (install `gcc-mingw-w64`)
+
 `make`
+
 `as` (Gnu Assembler)
 
 # How to use
