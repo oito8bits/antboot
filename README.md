@@ -11,6 +11,11 @@ You will need:
 - `make`
 - `as` (Gnu Assembler)
 
+After installing the dependencies, just run:
+```bash
+$ make
+```
+
 # How to use
 
 To use, simply create a FAT partition and place BOOTX64.EFI in the efi/boot/ directory and the kernel elf in boot/. A usage example can be seen [here](https://github.com/oito8bits/Ant).
