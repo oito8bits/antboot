@@ -2,8 +2,7 @@
 #include <file.h>
 #include <align.h>
 #include <errors.h>
-#include <page.h>
-#include <cr.h>
+#include <memory.h>
 
 // Used to store the elf before placing it at the elf entry point
 #define DATA_AREA 0x100000
