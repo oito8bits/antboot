@@ -1,6 +1,6 @@
 PROG = BOOTX64.EFI
 CC = x86_64-w64-mingw32-gcc
-OBJS = efi_main.o file.o elf.o memory.o gop.o errors.o memory.o
+OBJS = efi_main.o file.o elf.o memory.o gop.o errors.o memory.o ramfs.o
 
 $(PROG): $(OBJS) libefi/libefi.a
 	$(CC) -nostdlib -Wl,-dll -shared -Wl,--subsystem,10 -e efi_main -o $(PROG) $^  -Llibefi/ -l:libefi.a

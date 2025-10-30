@@ -15,4 +15,7 @@ EFI_STATUS file_read_file(EFI_FILE_PROTOCOL *,
                           VOID *);
 EFI_STATUS file_set_position(EFI_FILE_PROTOCOL *,
                              UINT64);
+EFI_STATUS file_get_info(EFI_FILE_PROTOCOL *,
+                         EFI_FILE_INFO *);
+
 #endif

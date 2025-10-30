@@ -70,3 +70,13 @@ EFI_STATUS file_read_file(EFI_FILE_PROTOCOL *file_interface,
 
   return EFI_SUCCESS;
 }
+
+// Get file info.
+EFI_STATUS file_get_info(EFI_FILE_PROTOCOL *file_interface,
+                         EFI_FILE_INFO *file_info)
+{
+  EFI_GUID file_info_guid = EFI_FILE_INFO_ID;
+  UINTN size = sizeof(EFI_FILE_INFO);
+  
+  return file_interface->GetInfo(file_interface, &file_info_guid, &size, file_info);
+}

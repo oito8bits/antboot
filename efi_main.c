@@ -5,6 +5,7 @@
 #include <memory.h>
 #include <info.h>
 #include <errors.h>
+#include <ramfs.h>
 
 __attribute__((sysv_abi))
 void (*_start_ant)(struct boot_info *);
@@ -56,6 +57,9 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   if((boot_info->acpi = getacpi()) == NULL)
     error(L"getacpi: Failed to find acpi.");
   
+  if((boot_info->ramfs = ramfs_init(file_protocol, &kernel_info)) == NULL)
+    error(L"ramfs_init: Failed to init ramfs.");
+
   elf_clear_all(&kernel_info);
   
   status = gop_init(&boot_info->mode);
