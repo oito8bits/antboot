@@ -126,18 +126,6 @@ static INTN is_elf(struct elf *elf_info)
   return *((UINT32 *) &elf_info->elf_header.e_ident) == 0x464c457f;
 }
 
-// Map elf sections
-static EFI_STATUS map_elf(struct elf *elf_info)
-{
-  cr_disable_wp_bit();
-  if(EFI_ERROR(page_map_pages(elf_info->program_header[0].p_paddr, 1)))
-    return EFI_INVALID_PARAMETER;
-  
-  memcpy((VOID *) elf_info->program_header[0].p_paddr, (VOID *) DATA_AREA, elf_info->mem_size * PAGE_SIZE);
-  cr_enable_wp_bit();
-
-  return EFI_SUCCESS;
-}
 EFI_STATUS elf_parse(struct elf *elf_info)
 {
   EFI_STATUS status;
@@ -176,7 +164,7 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   UINTN i;
   UINTN position;
   EFI_FILE_PROTOCOL *file_interface = elf_info->file_interface;
-  EFI_PHYSICAL_ADDRESS address = DATA_AREA;
+  EFI_PHYSICAL_ADDRESS address = elf_info->program_header[0].p_paddr;
   UINT64 p_memsz, p_align;
   UINTN size;
 
@@ -215,8 +203,6 @@ EFI_STATUS elf_load_kernel(struct elf *elf_info)
   }
 
   clear_bss(elf_info);
-  if(EFI_ERROR(map_elf(elf_info)))
-    return EFI_INVALID_PARAMETER;
   
   return EFI_SUCCESS;
 }

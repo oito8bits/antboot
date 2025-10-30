@@ -2,6 +2,7 @@
 #define _MEMORY_INCLUDE_
 
 #include <libefi.h>
+#define PAGE_SIZE 4096
 
 struct memory_map
 {
