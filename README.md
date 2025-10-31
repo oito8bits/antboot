@@ -30,5 +30,6 @@ struct boot_info
   UINT64 kernel_size;
   VOID *smbios;
   VOID *acpi;
+  VOID *ramfs;
 };
 ```
