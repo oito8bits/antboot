@@ -26,10 +26,10 @@ struct boot_info
 {
   struct memory_map map;    
   struct gop_video_mode mode;
+  struct ramfs ramfs;
   UINT64 kernel_entry;
   UINT64 kernel_size;
   VOID *smbios;
   VOID *acpi;
-  VOID *ramfs;
 };
 ```
