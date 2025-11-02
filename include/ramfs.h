@@ -4,6 +4,12 @@
 #include <libefi.h>
 #include <elf.h>
 
-VOID *ramfs_init(EFI_FILE_PROTOCOL *, struct elf *);
+struct ramfs
+{
+  VOID *base;
+  UINT64 size;
+};
+
+EFI_STATUS ramfs_init(EFI_FILE_PROTOCOL *, struct ramfs *, struct elf *);
 
 #endif

@@ -56,10 +56,11 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table)
   
   if((boot_info->acpi = getacpi()) == NULL)
     error(L"getacpi: Failed to find acpi.");
-  
-  if((boot_info->ramfs = ramfs_init(file_protocol, &kernel_info)) == NULL)
+/*  
+  status = ramfs_init(file_protocol, &boot_info->ramfs, &kernel_info);
+  if(EFI_ERROR(status))
     error(L"ramfs_init: Failed to init ramfs.");
-
+*/
   elf_clear_all(&kernel_info);
   
   status = gop_init(&boot_info->mode);
