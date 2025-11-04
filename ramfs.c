@@ -19,17 +19,20 @@ EFI_STATUS ramfs_init(EFI_FILE_PROTOCOL *root, struct ramfs *ramfs, struct elf *
   if(EFI_ERROR(status))
     return status;
 
+  UINTN file_size = file_info.FileSize;
   EFI_PHYSICAL_ADDRESS address = elf_info->program_header[0].p_paddr + 
                                  elf_info->mem_size * PAGE_SIZE;
   status = BS->AllocatePages(AllocateAddress,
                              EfiLoaderData,
-                             file_info.FileSize,
+                             file_size / PAGE_SIZE,
                              &address);
   if(EFI_ERROR(status))
     return status;
-
-  ramfs->base = (VOID *) address;
-  ramfs->size = file_info.FileSize;
   
+  file_read_file(file_interface, &file_size, (void *) address);
+  
+  ramfs->base = (void *) address;
+  ramfs->size = file_size;  
+
   return EFI_SUCCESS;
 }

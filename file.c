@@ -77,6 +77,5 @@ EFI_STATUS file_get_info(EFI_FILE_PROTOCOL *file_interface,
 {
   EFI_GUID file_info_guid = EFI_FILE_INFO_ID;
   UINTN size = sizeof(EFI_FILE_INFO);
-  
   return file_interface->GetInfo(file_interface, &file_info_guid, &size, file_info);
 }
